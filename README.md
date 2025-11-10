@@ -1,0 +1,2 @@
+# Durham-COMP51915-G16
+This repository is for Durham University course name COMP51915-Professional Skills of Group 16. We will collaborate to make a multi-player game to invalid the methods that vision control, git  system and testing.
