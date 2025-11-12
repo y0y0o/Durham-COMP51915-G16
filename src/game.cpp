@@ -196,10 +196,10 @@ bool Game::parseMove(const std::string &s, int &r, int &c) const {
 // Print help information
 void Game::printHelp() const {
   std::cout << "================ Gomoku ================\n"
-	       "Hello! Welcome to Gomoku by Group 16 !!\n"
-	       "Teamates:\n"
-	       "Zhenting Mai - Xin Waston Wan\n"
-	       "Chenyu Wei - Shun Yang\n"
+               "Hello! Welcome to Gomoku by Group 16 !!\n"
+               "Teamates:\n"
+               "Zhenting Mai - Xin Waston Wan\n"
+               "Chenyu Wei - Shun Yang\n"
                "Board size: 15x15, Black (X) goes first.\n"
                "Examples of input: H 8, j10, or 8 8\n"
                "\nCommands:\n"
