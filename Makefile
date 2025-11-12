@@ -18,6 +18,15 @@ test: $(SRC) $(TESTS)
 	$(CXX) $(CXXFLAGS) -o test_game $(SRC) tests/test_game.cpp
 	./test_game
 
+# format code for local
+lint:
+	clang-format -i src/*.cpp src/*.h tests/*.cpp
+
+
+# format check for CI
+lint-check:
+	clang-format --dry-run -Werror src/*.cpp src/*.h tests/*.cpp
+
 clean:
 	rm -f $(TARGET) test_board test_game
 
