@@ -7,13 +7,11 @@ TESTS = tests/test_board.cpp tests/test_game.cpp
 
 TARGET = gomoku
 
-# 默认编译主程序
 all: $(TARGET)
 
 $(TARGET): $(SRC) $(MAIN)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# 编译并运行测试
 test: $(SRC) $(TESTS)
 	$(CXX) $(CXXFLAGS) -o test_board $(SRC) tests/test_board.cpp
 	./test_board
