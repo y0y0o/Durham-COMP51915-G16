@@ -16,7 +16,11 @@ jobs:
 
       - name: Build main program
         run: make
+      
+      - name: Run code style check
+        run: make lint-check
 
       - name: Run tests
         run: make test
+      
 
