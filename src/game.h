@@ -9,6 +9,11 @@ class Game {
 public:
   Game();
   void loop();
+  static bool equalsIgnoreCase(const std::string &a, const std::string &b);
+  static bool isQuit(const std::string &s);
+  static bool isUndo(const std::string &s);
+
+  bool parseMove(const std::string &s, int &r, int &c) const;
 
 private:
   Board board;
@@ -22,11 +27,6 @@ private:
   bool doUndo();
 
   static void trim(std::string &s);
-  static bool equalsIgnoreCase(const std::string &a, const std::string &b);
-  static bool isQuit(const std::string &s);
-  static bool isUndo(const std::string &s);
-
-  bool parseMove(const std::string &s, int &r, int &c) const;
   void printHelp() const;
 };
 
