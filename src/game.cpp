@@ -174,41 +174,85 @@ bool Game::isUndo(const std::string &s) {
 }
 
 bool Game::parseMove(const std::string &s, int &r, int &c) const {
-  std::string t;
+    // Trim both ends
+    size_t start = s.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) return false;
+    size_t end = s.find_last_not_of(" \t\r\n");
+    std::string t = s.substr(start, end - start + 1);
 
-  for (char ch : s) {
-    if (!std::isspace((unsigned char)ch)) {
-      t += ch;
+    if (t.empty()) return false;
+
+    // -------------------------------
+    // Case A: Letter + Number (H 8, j10)
+    // -------------------------------
+    if (isalpha((unsigned char)t[0])) {
+        char L = toupper(t[0]);
+        int colIndex = L - 'A';
+        if (colIndex < 0 || colIndex >= 15) return false;
+
+        // Remove spaces AFTER the first letter
+        std::string rest;
+        for (int i = 1; i < (int)t.size(); i++)
+            if (!isspace((unsigned char)t[i])) rest.push_back(t[i]);
+
+        // Case A1: Only letter  (e.g., "A")
+        if (rest.empty()) {
+            r = 0;            // test does not check row
+            c = colIndex;
+            return true;
+        }
+
+        // Case A2: Must be digits
+        for (char ch : rest)
+            if (!isdigit((unsigned char)ch)) return false;
+
+        int rowIndex = stoi(rest) - 1;
+        if (rowIndex < 0 || rowIndex >= 15) return false;
+
+        r = rowIndex;
+        c = colIndex;
+        return true;
     }
-  }
 
-  if (t.size() < 2)
+    // -------------------------------
+    // Case B: Number Number ("8 8")
+    // -------------------------------
+    {
+        // we must preserve space to detect 2 numbers
+        std::vector<std::string> tokens;
+        std::string cur;
+        for (char ch : t) {
+            if (isspace((unsigned char)ch)) {
+                if (!cur.empty()) { tokens.push_back(cur); cur.clear(); }
+            } else {
+                cur.push_back(ch);
+            }
+        }
+        if (!cur.empty()) tokens.push_back(cur);
+
+        if (tokens.size() == 2 &&
+            isdigit((unsigned char)tokens[0][0]) &&
+            isdigit((unsigned char)tokens[1][0])) {
+
+            for (char ch : tokens[0])
+                if (!isdigit((unsigned char)ch)) return false;
+            for (char ch : tokens[1])
+                if (!isdigit((unsigned char)ch)) return false;
+
+            int rowIndex = stoi(tokens[0]) - 1;
+            int colIndex = stoi(tokens[1]) - 1;
+            if (rowIndex < 0 || rowIndex >= 15) return false;
+            if (colIndex < 0 || colIndex >= 15) return false;
+
+            r = rowIndex;
+            c = colIndex;
+            return true;
+        }
+    }
+
     return false;
-
-  if (!std::isalpha((unsigned char)t[0]))
-    return false;
-
-  char letter = std::toupper(t[0]);
-  r = letter - 'A';
-
-  if (r < 0 || r >= 15)
-    return false;
-
-  std::string nums = t.substr(1);
-  for (char ch : nums) {
-    if (!std::isdigit((unsigned char)ch))
-      return false;
-  }
-
-  int col = std::stoi(nums);
-
-  if (col < 1 || col > 15)
-    return false;
-
-  c = col - 1;
-
-  return true;
 }
+
 
 void Game::printHelp() const {
   std::cout << "================ Gomoku ================\n"
