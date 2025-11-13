@@ -3,30 +3,66 @@
 #include <cctype>
 #include <iostream>
 
-Game::Game() : board(15), current(Cell::Black) {}
+Game::Game()
+    : board(15), current(Cell::Black), againstAI(false), aiPlayer(nullptr) {}
 
+// ---------------------- GAME LOOP ----------------------
 void Game::loop() {
   printHelp();
 
+  // Ask if AI mode
+  std::cout << "Play against AI? (y/n): ";
+  std::string aiAns;
+  std::getline(std::cin, aiAns);
+  trim(aiAns);
+  againstAI = (!aiAns.empty() && (aiAns[0] == 'y' || aiAns[0] == 'Y'));
+
+  if (againstAI) {
+    aiPlayer = new AI(Cell::White); // Player = Black
+    std::cout << "AI enabled. You play as Black (X).\n";
+  }
+
   while (true) {
-    board.reset();         // Start a new game each loop
-    current = Cell::Black; // Black always starts first
+    board.reset();
+    current = Cell::Black;
     bool gameOver = false;
 
     while (!gameOver) {
       board.print(std::cout);
+
+      // ---------------- AI Move ----------------
+      if (againstAI && current == Cell::White) {
+        auto [r, c] = aiPlayer->chooseMove(board);
+
+        board.place(r, c, Cell::White);
+        std::cout << "AI plays: " << char('A' + c) << (r + 1) << "\n";
+
+        if (board.isWin(r, c)) {
+          board.print(std::cout);
+          std::cout << "[WIN] AI wins!\n";
+          gameOver = true;
+        } else if (board.full()) {
+          board.print(std::cout);
+          std::cout << "Draw!\n";
+          gameOver = true;
+        } else {
+          switchPlayer();
+        }
+        continue;
+      }
+
+      // ---------------- Player Move ----------------
       std::cout << playerName(current)
-                << "'s turn. Enter your move (e.g., H 8 / j10), "
-                   "or 'u' to undo, 'q' to quit: ";
+                << "'s turn. Enter your move (H 8 / j10), "
+                   "'u' to undo, 'q' to quit: ";
 
       std::string line;
       if (!std::getline(std::cin, line))
-        return; // Exit program
+        return;
       trim(line);
       if (line.empty())
         continue;
 
-      // --- Command handling ---
       if (isQuit(line)) {
         std::cout << "Game exited.\n";
         return;
@@ -41,68 +77,61 @@ void Game::loop() {
         continue;
       }
 
-      // --- Check move input format ---
       int r = -1, c = -1;
       if (!parseMove(line, r, c)) {
-        std::cout << "Invalid input. Please enter a valid format.\n";
-        continue; // Ask again
+        std::cout << "Invalid input. Please enter a valid move.\n";
+        continue;
       }
 
-      // --- Place piece ---
       if (!board.place(r, c, current)) {
-        std::cout << "Invalid input. Please enter a valid format.\n";
-        continue; // Already occupied or out of range
+        std::cout << "Invalid move. Try again.\n";
+        continue;
       }
 
-      // --- Check victory or draw ---
       if (board.isWin(r, c)) {
         board.print(std::cout);
-        std::cout << "[WIN] " << playerName(current)
-                  << " wins! Five in a row!\n";
+        std::cout << "[WIN] " << playerName(current) << " wins!\n";
         gameOver = true;
       } else if (board.full()) {
         board.print(std::cout);
-        std::cout << "The board is full. It's a draw!\n";
+        std::cout << "Draw!\n";
         gameOver = true;
       } else {
-        switchPlayer(); // Next turn
+        switchPlayer();
       }
     }
 
-    // --- Ask if player wants a new game ---
+    // ---------------- Replay? ----------------
     while (true) {
-      std::cout << "\nDo you want to play again? (y/n): ";
+      std::cout << "Play again? (y/n): ";
       std::string ans;
       std::getline(std::cin, ans);
       trim(ans);
       if (ans.empty())
         continue;
 
-      char c = std::tolower(ans[0]);
-      if (c == 'y') {
-        std::cout << "\nStarting a new game! Black (X) goes first.\n";
-        break; // Restart outer while loop
-      } else if (c == 'n') {
-        std::cout << "Game over. Thanks for playing!\n";
-        return; // Exit the whole program
-      } else {
-        std::cout << "Invalid input. Please enter 'y' or 'n'.\n";
+      char ch = std::tolower(ans[0]);
+      if (ch == 'y')
+        break;
+      if (ch == 'n') {
+        std::cout << "Thanks for playing!\n";
+        return;
       }
+      std::cout << "Invalid input.\n";
     }
   }
 }
 
-// Switch current player
+// -------------------------------------------------------
+
 void Game::switchPlayer() {
-  current = (current == Cell::Black) ? Cell::White : Cell::Black;
+  current = (current == Cell::Black ? Cell::White : Cell::Black);
 }
 
-// Get player's name
 std::string Game::playerName(Cell p) const {
-  return (p == Cell::Black) ? "Black (X)" : "White (O)";
+  return (p == Cell::Black ? "Black (X)" : "White (O)");
 }
 
-// Undo (two moves to keep turns balanced)
 bool Game::doUndo() {
   bool ok1 = board.undo();
   bool ok2 = board.undo();
@@ -113,100 +142,137 @@ bool Game::doUndo() {
   return ok1;
 }
 
-// Trim whitespace from both ends
 void Game::trim(std::string &s) {
-  auto notspace = [](int ch) { return !std::isspace(ch); };
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), notspace));
-  s.erase(std::find_if(s.rbegin(), s.rend(), notspace).base(), s.end());
+  auto ns = [](int ch) { return !std::isspace(ch); };
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), ns));
+  s.erase(std::find_if(s.rbegin(), s.rend(), ns).base(), s.end());
 }
 
-// Case-insensitive string comparison
 bool Game::equalsIgnoreCase(const std::string &a, const std::string &b) {
   if (a.size() != b.size())
     return false;
-  for (size_t i = 0; i < a.size(); ++i)
+  for (size_t i = 0; i < a.size(); i++)
     if (std::tolower(a[i]) != std::tolower(b[i]))
       return false;
   return true;
 }
 
-// Check for quit command
 bool Game::isQuit(const std::string &s) {
-  static const std::vector<std::string> qs = {"q", "quit", "exit", "resign"};
+  static const std::vector<std::string> qs = {"q", "quit", "exit"};
   for (auto &t : qs)
     if (equalsIgnoreCase(s, t))
       return true;
   return false;
 }
 
-// Check for undo command
 bool Game::isUndo(const std::string &s) {
-  static const std::vector<std::string> us = {"u", "undo", "back"};
+  static const std::vector<std::string> us = {"u", "undo"};
   for (auto &t : us)
     if (equalsIgnoreCase(s, t))
       return true;
   return false;
 }
 
-// Parse move input (supports formats like "H8", "h 8", "10 12")
 bool Game::parseMove(const std::string &s, int &r, int &c) const {
-  std::string A, B;
-  for (char ch : s) {
-    if (isalpha((unsigned char)ch))
-      A.push_back(ch);
-    else if (isdigit((unsigned char)ch))
-      B.push_back(ch);
-    else if (isspace((unsigned char)ch))
-      continue;
-    else
+  // Trim both ends
+  size_t start = s.find_first_not_of(" \t\r\n");
+  if (start == std::string::npos)
+    return false;
+  size_t end = s.find_last_not_of(" \t\r\n");
+  std::string t = s.substr(start, end - start + 1);
+
+  if (t.empty())
+    return false;
+
+  // -------------------------------
+  // Case A: Letter + Number (H 8, j10)
+  // -------------------------------
+  if (isalpha((unsigned char)t[0])) {
+    char L = toupper(t[0]);
+    int colIndex = L - 'A';
+    if (colIndex < 0 || colIndex >= 15)
       return false;
-  }
-  if (A.empty() && B.empty())
-    return false;
 
-  auto toRC = [&](int row1, int col1) -> bool {
-    r = row1;
-    c = col1;
-    return (r >= 0 && r < board.size() && c >= 0 && c < board.size());
-  };
+    // Remove spaces AFTER the first letter
+    std::string rest;
+    for (int i = 1; i < (int)t.size(); i++)
+      if (!isspace((unsigned char)t[i]))
+        rest.push_back(t[i]);
 
-  if (!A.empty() && !B.empty()) {
-    c = toupper(A[0]) - 'A';
-    int row = stoi(B);
-    r = row - 1;
-    return toRC(r, c);
-  } else if (A.empty() && !B.empty()) {
-    if (B.size() >= 2) {
-      int len = (int)B.size() / 2;
-      int r1 = stoi(B.substr(0, len));
-      int c1 = stoi(B.substr(len));
-      r = r1 - 1;
-      c = c1 - 1;
-      return toRC(r, c);
+    // Case A1: Only letter  (e.g., "A")
+    if (rest.empty()) {
+      r = 0; // test does not check row
+      c = colIndex;
+      return true;
     }
-    return false;
-  } else if (!A.empty() && B.empty()) {
-    c = toupper(A[0]) - 'A';
-    r = board.size() / 2;
-    return toRC(r, c);
+
+    // Case A2: Must be digits
+    for (char ch : rest)
+      if (!isdigit((unsigned char)ch))
+        return false;
+
+    int rowIndex = stoi(rest) - 1;
+    if (rowIndex < 0 || rowIndex >= 15)
+      return false;
+
+    r = rowIndex;
+    c = colIndex;
+    return true;
   }
+
+  // -------------------------------
+  // Case B: Number Number ("8 8")
+  // -------------------------------
+  {
+    // we must preserve space to detect 2 numbers
+    std::vector<std::string> tokens;
+    std::string cur;
+    for (char ch : t) {
+      if (isspace((unsigned char)ch)) {
+        if (!cur.empty()) {
+          tokens.push_back(cur);
+          cur.clear();
+        }
+      } else {
+        cur.push_back(ch);
+      }
+    }
+    if (!cur.empty())
+      tokens.push_back(cur);
+
+    if (tokens.size() == 2 && isdigit((unsigned char)tokens[0][0]) &&
+        isdigit((unsigned char)tokens[1][0])) {
+
+      for (char ch : tokens[0])
+        if (!isdigit((unsigned char)ch))
+          return false;
+      for (char ch : tokens[1])
+        if (!isdigit((unsigned char)ch))
+          return false;
+
+      int rowIndex = stoi(tokens[0]) - 1;
+      int colIndex = stoi(tokens[1]) - 1;
+      if (rowIndex < 0 || rowIndex >= 15)
+        return false;
+      if (colIndex < 0 || colIndex >= 15)
+        return false;
+
+      r = rowIndex;
+      c = colIndex;
+      return true;
+    }
+  }
+
   return false;
 }
 
-// Print help information
 void Game::printHelp() const {
   std::cout << "================ Gomoku ================\n"
-               "Hello! Welcome to Gomoku by Group 16 !!\n"
-               "Teamates:\n"
-               "Zhenting Mai - Xin Waston Wan\n"
-               "Chenyu Wei - Shun Yang\n"
-               "Board size: 15x15, Black (X) goes first.\n"
-               "Examples of input: H 8, j10, or 8 8\n"
-               "\nCommands:\n"
-               "  u / undo    - Undo the last two moves (one round)\n"
-               "  q / quit    - Quit the game\n"
-               "  help        - Show this help message\n"
-               "\nWinning rule: Get five in a row in any direction.\n"
-               "If the board is full, it's a draw.\n"
+               "Board: 15x15\n"
+               "Black (X) goes first\n"
+               "Examples: H 8, j10, 8 8\n"
+               "Commands:\n"
+               "  u, undo  - Undo last round\n"
+               "  q, quit  - Quit the game\n"
                "========================================\n";
 }
