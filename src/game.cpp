@@ -173,8 +173,6 @@ bool Game::isUndo(const std::string &s) {
   return false;
 }
 
-
-
 bool Game::parseMove(const std::string &s, int &r, int &c) const {
   std::string A, B;
 
