@@ -79,7 +79,7 @@ Our Gomoku implementation is designed not only to reproduce the rules of the gam
 The project follows a clean and modular directory layout that separates source code, test suites, build automation, and continuous integration configuration. This structure promotes maintainability, clarity, and scalability, aligning with standard practices in collaborative software development.
 
 
-
+```bash
 Durham-COMP51915-G16/
 │
 ├── .github/workflows/ci.yml # CI pipeline
@@ -98,7 +98,7 @@ Durham-COMP51915-G16/
 ├── Makefile # Build/test/lint rules
 ├── README.md # Documentation
 └── compile_commands.json # (optional) clangd support
-
+```
 ---
 
 ## 4. Build Instructions
