@@ -13,18 +13,18 @@
 
 class AI {
 public:
-    explicit AI(Cell aiColor);
+  explicit AI(Cell aiColor);
 
-    // Decide next move for the AI
-    // Returns a pair (row, col)
-    std::pair<int,int> chooseMove(const Board& board);
+  // Decide next move for the AI
+  // Returns a pair (row, col)
+  std::pair<int, int> chooseMove(const Board &board);
 
 private:
-    Cell me;       // AI's own color
-    Cell enemy;    // Opponent's color
+  Cell me;    // AI's own color
+  Cell enemy; // Opponent's color
 
-    bool isWinningMove(const Board& board, int r, int c, Cell color) const;
-    int evaluatePoint(const Board& board, int r, int c, Cell color) const;
+  bool isWinningMove(const Board &board, int r, int c, Cell color) const;
+  int evaluatePoint(const Board &board, int r, int c, Cell color) const;
 };
 
 #endif
