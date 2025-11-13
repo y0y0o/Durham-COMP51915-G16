@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -O2 -Wall
 
-SRC = src/board.cpp src/game.cpp
+SRC = src/board.cpp src/game.cpp src/ai.cpp
 MAIN = src/main.cpp
 TESTS = tests/test_board.cpp tests/test_game.cpp
 
