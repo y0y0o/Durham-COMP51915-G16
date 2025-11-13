@@ -122,12 +122,13 @@ To compile the entire application, run:
 
 ```bash
 make
-
+```
 this generates：
+```bash
 ./test_board
 ./gomoku
 ./tets_game
-
+```
 Execute the full unit test suite:
 make test
 
@@ -143,7 +144,7 @@ After building the project, the Gomoku game can be launched directly from the te
 
 ```bash
 ./gomoku
-
+```
 Players alternate by entering coordinates like:
 Enter row and column: 7 8
 The board updates automatically until a player wins.
@@ -156,11 +157,12 @@ The project includes a dedicated unit test suite that validates the correctness 
 
 ```bash
 make test
-
+```
 If needed, individual test executables can be run manually:
+```bash
 ./test_board
 ./test_game
-
+```
 These tests verify:
 valid and invalid stone placement
 boundary handling
@@ -175,7 +177,7 @@ To maintain a consistent and professional coding style across the entire project
 
 ```bash
 make lint-check
-
+```
 ## Continuous Integration (CI)
 
 This project uses GitHub Actions to ensure that every commit and pull request is automatically validated for build correctness, code style compliance, and test success.
