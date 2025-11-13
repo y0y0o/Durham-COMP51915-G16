@@ -173,26 +173,7 @@ bool Game::isUndo(const std::string &s) {
   return false;
 }
 
-bool Game::parseMove1(const std::string &s, int &r, int &c) const {
-  std::string A, B;
-  for (char ch : s) {
-    if (isalpha((unsigned char)ch))
-      A.push_back(ch);
-    else if (isdigit((unsigned char)ch))
-      B.push_back(ch);
-    else if (isspace((unsigned char)ch))
-      continue;
-    else
-      return false;
-  }
-  if (A.empty() || B.empty())
-    return false;
 
-  c = toupper(A[0]) - 'A';
-  r = std::stoi(B) - 1;
-
-  return (board.inBounds(r, c));
-}
 
 bool Game::parseMove(const std::string &s, int &r, int &c) const {
   std::string A, B;
