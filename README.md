@@ -11,6 +11,13 @@ This repository is for Durham University course name COMP51915-Professional Skil
 
 ## 1. Project Overview
 
+| Name       | Student ID | 
+| ---------- | ---------- | 
+| Waston Wan | nxkh91   | 
+| Ethan      | bbrf92   | 
+| Chen       | ldww23   | 
+| Zhenting   | xvtz92   |
+
 This project implements a modular, test-driven Gomoku (Five-in-a-Row) game in modern C++17 as part of the COMP51915 – Professional Skills module at Durham University. The objective of the assignment is not only to build a functioning game, but also to demonstrate competence in professional software engineering practices, including version control, collaborative development, modular system design, automated testing, and continuous integration.
 
 **Gomoku** is a classical two-player board game in which players alternately place stones on a square grid. The goal is to achieve **five consecutive stones** horizontally, vertically, or diagonally. Although the rules are simple, implementing Gomoku in a clean and maintainable way requires careful separation of responsibilities and robust game-state management.
