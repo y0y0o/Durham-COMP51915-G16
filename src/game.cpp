@@ -174,36 +174,40 @@ bool Game::isUndo(const std::string &s) {
 }
 
 bool Game::parseMove(const std::string &s, int &r, int &c) const {
-  std::string A, B;
+  std::string t;
 
   for (char ch : s) {
-    if (isalpha((unsigned char)ch))
-      A.push_back(ch);
-    else if (isdigit((unsigned char)ch))
-      B.push_back(ch);
-    else if (isspace((unsigned char)ch))
-      continue;
-    else
-      return false; // invalid character
+    if (!std::isspace((unsigned char)ch)) {
+      t += ch;
+    }
   }
 
-  // Must have exactly 1 letter + at least 1 digit
-  if (A.size() != 1 || B.empty())
+  if (t.size() < 2)
     return false;
 
-  // Convert row (letter)
-  r = toupper(A[0]) - 'A';
+  if (!std::isalpha((unsigned char)t[0]))
+    return false;
+
+  char letter = std::toupper(t[0]);
+  r = letter - 'A';
+
   if (r < 0 || r >= 15)
     return false;
 
-  // Convert column (number)
-  int col = std::stoi(B);
+  std::string nums = t.substr(1);
+  for (char ch : nums) {
+    if (!std::isdigit((unsigned char)ch))
+      return false;
+  }
+
+  int col = std::stoi(nums);
+
   if (col < 1 || col > 15)
     return false;
 
   c = col - 1;
 
-  return board.inBounds(r, c);
+  return true;
 }
 
 void Game::printHelp() const {
